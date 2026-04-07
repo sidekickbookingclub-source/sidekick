@@ -1,0 +1,1103 @@
+<!DOCTYPE html>  <html>    
+<head>    
+<meta charset="UTF-8">    
+<title>SideKick – Admin Booking</title>   
+<link rel="icon" type="image/png" href="faviconsidekick.jpeg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>    <style>    
+body{    
+font-family:'Segoe UI',Arial,sans-serif;    
+background:#eef2f7;    
+margin:0;    
+}    
+    
+.selected{  
+background:#3b82f6 !important;  
+color:white !important;  
+border:2px solid #1d4ed8;  
+}    
+    
+.container{    
+max-width:1100px;    
+margin:30px auto;    
+background:white;    
+padding:25px;    
+border-radius:18px;    
+box-shadow:0 12px 30px rgba(0,0,0,0.08);    
+}    
+    
+.selection-bar{  
+position:sticky;  
+top:10px;  
+background:#0d47a1;  
+color:white;  
+padding:10px 16px;  
+border-radius:10px;  
+margin-bottom:10px;  
+display:flex;  
+justify-content:center;  
+font-weight:600;  
+box-shadow:0 6px 16px rgba(0,0,0,0.15);  
+z-index:10;  
+}  
+  
+.header{text-align:center;margin-bottom:15px;}    
+.header h1{    
+margin:0;    
+font-size:34px;    
+background:linear-gradient(135deg,#0d47a1,#1976d2);    
+-webkit-background-clip:text;    
+background-clip:text ;  
+color:transparent;    
+}    
+.header h2{margin:5px 0;color:#666;font-size:16px;}    
+    
+table{    
+width:100%;    
+border-collapse:separate;    
+border-spacing:6px;    
+margin-top:20px;    
+}    
+    
+th{    
+background:#0d47a1;    
+color:white;    
+padding:10px;    
+border-radius:8px;    
+}    
+    
+td{    
+background:#f7f9fc;    
+border-radius:12px;    
+padding:14px 6px;    
+cursor:pointer;    
+transition:0.15s;    
+font-size:13px;    
+}    
+    
+.available{background:#22c55e;color:white}    
+.booked{background:#ef4444;color:white}    
+.waitlist{background:#f59e0b;color:black}    
+    
+td:hover{    
+transform:scale(1.02);    
+box-shadow:0 4px 12px rgba(0,0,0,0.1);    
+}    
+    
+#popup{  
+display:none;  
+position:fixed;  
+inset:0;  
+background:rgba(0,0,0,0.45);  
+padding:20px;  
+z-index:999; /* 🔥 FIX */  
+animation: fadeIn 0.2s ease;  
+}  
+    
+.popupBox{    
+background:white;    
+max-width:420px;    
+margin:auto;    
+padding:24px;    
+border-radius:18px;    
+position:relative;  
+z-index:1000;  
+}  
+  
+@keyframes fadeIn{  
+from{opacity:0;}  
+to{opacity:1;}  
+}  
+  
+.popupBox input,    
+.popupBox select{    
+width:100%;    
+padding:10px;    
+margin-top:6px;    
+border-radius:8px;    
+border:1px solid #ccc;    
+}    
+    
+.popupBtns{text-align:center;margin-top:18px;}    
+    
+.popupBtns button{    
+padding:10px 18px;    
+margin:6px;    
+border:none;    
+border-radius:8px;    
+cursor:pointer;    
+}    
+
+.logoBox{
+max-width:600px;   /* controls width */
+width:100%;
+margin:0 auto 20px auto;
+
+border-radius:20px;
+overflow:hidden;
+
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+.logoBox img{
+width:100%;
+height:auto;       /* 🔥 VERY IMPORTANT */
+display:block;
+object-fit:contain;
+}
+
+.top-actions{  
+position:sticky;  
+top:0;  
+background:white;  
+z-index:20;  
+display:flex;  
+gap:12px;  
+justify-content:center;  
+padding:10px;  
+border-radius:12px;  
+box-shadow:0 4px 12px rgba(0,0,0,0.08);  
+margin-bottom:15px;  
+}  
+  
+.action-btn{  
+padding:10px 18px;  
+border:none;  
+border-radius:10px;  
+cursor:pointer;  
+font-size:14px;  
+font-weight:600;  
+transition:0.2s;  
+box-shadow:0 4px 10px rgba(0,0,0,0.08);  
+}  
+  
+.action-btn:hover{  
+transform:translateY(-1px);  
+box-shadow:0 6px 14px rgba(0,0,0,0.12);  
+}  
+  
+.action-btn:active{  
+transform:scale(0.96);  
+}  
+  
+.btn-primary{  
+background:#0d47a1;  
+color:white;  
+}  
+  
+.btn-danger{  
+background:#ef4444;  
+color:white;  
+}  
+  
+.legend{  
+display:flex;  
+gap:15px;  
+justify-content:center;  
+margin-bottom:10px;  
+font-size:13px;  
+color:#555;  
+}  
+  
+.dot{  
+display:inline-block;  
+width:10px;  
+height:10px;  
+border-radius:50%;  
+margin-right:6px;  
+}  
+  
+.green{background:#22c55e;}  
+.red{background:#ef4444;}  
+.orange{background:#f59e0b;}  
+  
+.btn-active{  
+background:#22c55e !important;  
+color:white !important;  
+}  
+    
+.btn-blue{background:#0d47a1;color:white}    
+.btn-red{background:#ef4444;color:white}    
+.btn-yellow{background:#f59e0b}    
+    
+.hidden{display:none}    
+.menu-btn{
+font-size:22px;
+cursor:pointer;
+position:absolute;
+right:20px;
+}
+
+.menu{
+position:absolute;
+top:70px;
+right:20px;
+background:white;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.menu a{
+text-decoration:none;
+color:#0d47a1;
+font-weight:600;
+padding:8px 12px;
+}
+
+.hidden{
+display:none;
+}
+</style>    </head>    
+<body>    <div class="container">   
+<div class="menu-btn" onclick="toggleMenu()">☰</div> 
+<div class="header">    
+<div class="logoBox">
+    <img src="logosidekick.jpeg" alt="Sidekick Logo">
+</div>   
+<div id="menu" class="menu hidden">
+    <a href="sidekick.html">Home</a>
+    <a href="index.html">Find Turfs</a>
+    <a href="gologoluser.html">Back to User Page</a>
+</div>
+<h2>Admin Booking – Gologol Sports Hub</h2>    
+<div class="top-actions">  
+<button id="multiBtn" class="action-btn btn-primary" onclick="toggleMultiMode()">  
+Select Multiple  
+</button>  <button id="clearBtn" class="action-btn btn-danger hidden" onclick="clearSelection()">  
+Clear Selection  
+</button>  
+</div>  
+</div>    <div style="text-align:center; margin-bottom:15px;">  
+<input type="date" id="datePicker"   
+value=""   
+onchange="changeDate(this.value)"  
+style="  
+padding:10px;  
+border-radius:10px;  
+border:1px solid #ccc;  
+font-size:14px;  
+"  
+/>  
+</div>  <div id="selectionBar" class="selection-bar hidden">  
+<span id="selectionText">0 slots selected</span>  
+</div>  <div class="legend">  
+<div><span class="dot green"></span> Available</div>  
+<div><span class="dot red"></span> Booked</div>  
+<div><span class="dot orange"></span> Waitlist</div>  
+</div>  <table id="slotTable"></table>    
+</div>  <div id="popup">    
+<div class="popupBox" id="popupBox"></div>    
+</div>    <script>    
+
+function parseLocalDate(dateStr){
+let [y,m,d] = dateStr.split("-");
+return new Date(y, m-1, d); // LOCAL time (no timezone bug)
+}
+    
+const { createClient } = supabase;    
+    
+const client = createClient(    
+"https://ahhjwczdrkgvlhrynfle.supabase.co",    
+"sb_publishable_RNa17g2lzkaH4_gQYKpldw_UqTvygJI"    
+);    
+    
+const TURF_ID="ddd59a01-76b9-4372-b0fa-824c42ddc15c";    
+    
+const REGULAR_PRICE=400;    
+const MEMBERSHIP_PRICE=7000;    
+    
+const times=[    
+"5-6 AM","6-7 AM","7-8 AM","8-9 AM","9-10 AM",    
+"10-11 AM","11-12 PM","12-1 PM","1-2 PM",    
+"2-3 PM","3-4 PM","4-5 PM","5-6 PM",    
+"6-7 PM","7-8 PM","8-9 PM","9-10 PM","10-11 PM"    
+];    
+    
+let courts=[];    
+let bookings={};    
+let activeCourt=null;    
+let activeTime=null;    
+let multiMode = false;  
+let selectedCells = new Set(); // now stores "court_time" strings  
+let selectedDate = new Date().toISOString().split("T")[0];  
+  
+async function loadCourts(){    
+    
+const {data,error}=await client   
+
+.from("courts")    
+.select("*")    
+.eq("turf_id",TURF_ID);    
+    
+if(error){
+console.log("BOOKING ERROR:", error);
+alert("Booking load failed");
+return;
+}  
+    
+courts=data;    
+}    
+    
+function updateSelectionUI(){  
+  
+let bar = document.getElementById("selectionBar");  
+let text = document.getElementById("selectionText");  
+  
+let count = selectedCells.size;  
+let btn = document.getElementById("multiBtn");  
+  
+if(multiMode){  
+btn.innerText = count > 0   
+? `Continue (${count})`   
+: "Select Slots";  
+}  
+  
+if(count > 0){  
+bar.classList.remove("hidden");  
+text.innerText = count + " slot" + (count>1?"s":"") + " selected";  
+}else{  
+bar.classList.add("hidden");  
+}  
+  
+}  
+  
+async function loadBookings(){
+
+const {data, error} = await client
+.from("bookings")
+.select("*")
+.eq("turf_id", TURF_ID);
+
+bookings = {};
+
+if(error){
+console.log("BOOKING ERROR:", error);
+alert("Booking load failed");
+return;
+}
+
+data.forEach(b => {
+
+let key = b.court_id + "_" + b.start_time;
+
+// LOCAL DATE SAFE
+let current = parseLocalDate(selectedDate);
+let start = parseLocalDate(b.booking_date);
+
+// ✅ NORMAL BOOKING (only exact date)
+if(!b.membership_end_date){
+if(b.booking_date === selectedDate){
+bookings[key] = b;
+}
+return;
+}
+
+// ✅ MEMBERSHIP / SPECIAL RANGE
+let end = parseLocalDate(b.membership_end_date);
+
+// 🔥 STRICT RANGE CHECK
+if(current >= start && current <= end){
+bookings[key] = b;
+}
+
+});
+
+}
+  
+function toggleMultiMode(){  
+  
+multiMode = !multiMode;  
+  
+const btn = document.getElementById("multiBtn");  
+const clearBtn = document.getElementById("clearBtn");  
+  
+if(multiMode){  
+  
+updateSelectionUI();  
+btn.classList.add("btn-active"); // ✅ highlight ON  
+clearBtn.classList.remove("hidden");  
+  
+}else{  
+  
+btn.innerText = "Select Multiple";  
+btn.classList.remove("btn-active"); // ❌ remove highlight  
+clearBtn.classList.add("hidden");  
+  
+if(selectedCells.size > 0){  
+openMultiPopup();  
+return;  
+}  
+clearSelection();  
+updateSelectionUI();  
+}  
+  
+}  
+  
+function clearSelection(){  
+  
+selectedCells.forEach(key=>{  
+let [court,time] = key.split("_");  
+  
+let cell = document.querySelector(  
+`td[data-court="${court}"][data-time="${time}"]`  
+);  
+  
+if(cell) cell.classList.remove("selected");  
+  
+});  
+  
+selectedCells.clear();  
+updateSelectionUI();  
+}  
+    
+    
+function renderGrid(){    
+    
+const table=document.getElementById("slotTable");    
+    
+let head="<tr><th>Time</th>";    
+    
+courts.forEach(c=>{    
+head+=`<th>${c.name}</th>`;    
+});    
+    
+head+="</tr>";    
+    
+table.innerHTML=head;    
+    
+times.forEach(t=>{    
+    
+let row=`<tr><td>${t}</td>`;    
+    
+courts.forEach(c=>{    
+    
+let booking=bookings[c.id+"_"+t];    
+    
+let status="available";    
+let label="Available";    
+    
+if(booking){    
+    
+if(booking.status==="booked"){
+
+status="booked";
+
+let typeLabel = booking.type || "regular";
+
+if(typeLabel==="membership"){    
+
+let start = parseLocalDate(selectedDate);
+let end = parseLocalDate(booking.membership_end_date);
+
+let diff = end - start;
+let daysLeft = Math.ceil(diff / (1000*60*60*24));
+
+// prevent negative
+if(daysLeft < 0) daysLeft = 0;
+
+label = `
+${booking.player_name}<br>
+<small>MEMBERSHIP • ${daysLeft} days left</small>
+`; 
+}
+
+else if(typeLabel==="regular"){    
+let priceText = `₹${getSlotPrice(t)}`;
+
+label = `
+${booking.player_name || "Booked"}<br>
+<small>REGULAR • ${priceText}</small>
+`;
+}
+
+else if(typeLabel==="special"){    
+
+// membership-style special
+if(booking.membership_end_date){
+
+let start = parseLocalDate(selectedDate);
+let end = parseLocalDate(booking.membership_end_date);
+
+let diff = end - start;
+let daysLeft = Math.ceil(diff / (1000*60*60*24));
+
+if(daysLeft < 0) daysLeft = 0;
+
+label = `
+${booking.player_name}<br>
+<small>SPECIAL PLAN • ${daysLeft} days left</small>
+`;
+}else{
+
+let priceText = `₹${booking.price || "-"}`;
+
+label = `
+${booking.player_name || "Booked"}<br>
+<small>SPECIAL • ${priceText}</small>
+`;
+}
+}
+}
+// ✅ WAITLIST SHOULD BE OUTSIDE
+if(booking.status==="waitlist"){    
+status="waitlist";    
+label=`Waitlist<br><small>${booking.players_needed || 1} players needed</small>`;    
+}
+    
+}    
+    
+row+=`<td   
+class="${status}"   
+data-court="${c.id}"   
+data-time="${t}"   
+onclick="handleCellClick(this,'${c.id}','${t}')"  
+>${label}</td>`;    
+    
+});    
+    
+row+="</tr>";    
+    
+table.innerHTML+=row;    
+    
+});   
+// restore selection highlight  
+selectedCells.forEach(key=>{  
+let [court,time] = key.split("_");  
+  
+let cell = document.querySelector(  
+`td[data-court="${court}"][data-time="${time}"]`  
+);  
+  
+if(cell) cell.classList.add("selected");  
+});    
+    
+}    
+    
+function openPopup(court,time){  
+  
+activeCourt=court;  
+activeTime=time;  
+  
+let booking=bookings[court+"_"+time];  
+  
+if(booking && booking.status==="booked") return showBookedOptions(booking);  
+if(booking && booking.status==="waitlist") return showWaitlistOptions(booking);  
+  
+showBookingForm({});  
+document.getElementById("selectionBar").classList.add("hidden");  
+}  
+  
+function handleCellClick(cell,court,time){  
+  
+let booking=bookings[court+"_"+time];  
+  
+// MULTI SELECT MODE  
+if(multiMode){  
+  
+if(booking) return;  
+  
+let key = court + "_" + time;  
+  
+if(selectedCells.has(key)){  
+cell.classList.remove("selected");  
+selectedCells.delete(key);  
+}else{  
+cell.classList.add("selected");  
+selectedCells.add(key);  
+}  
+  
+updateSelectionUI();  
+  
+return;  
+}  
+  
+// NORMAL MODE  
+openPopup(court,time);  
+  
+}  
+  
+function openMultiPopup(){  
+  
+const selectedSnapshot =  
+[...selectedCells];  
+  
+if(selectedCells.size === 0){  
+alert("No slots selected");  
+return;  
+}  
+  
+let first= selectedSnapshot[0];  
+let parts = first.split("_");  
+  
+activeCourt = parts[0];  
+activeTime = parts[1];  
+  
+showBookingForm({});  
+document.getElementById("selectionBar").classList.add("hidden");  
+}  
+    
+  
+    
+    
+function closePopup(){    
+document.getElementById("popup").style.display="none";    
+}    
+
+function getPriceLabel(time){
+let price = getSlotPrice(time);
+return `Regular ₹${price}`;
+}
+    
+function showBookingForm(data){    
+    
+document.getElementById("popupBox").innerHTML=`    
+    
+<h3>${activeTime}</h3>    
+    
+Name<br><input id="name" value="${data.player_name||""}"><br><br>    
+    
+Phone<br><input id="phone" value="${data.phone||""}"><br><br>    
+    
+Type<br>    
+    
+<select id="type" onchange="toggleBoxes()">    
+    
+<option value="regular">${getPriceLabel(activeTime)}</option>
+    
+<option value="membership">Membership ₹${MEMBERSHIP_PRICE}/month</option>    
+    
+<option value="special">Special</option>    
+    
+<option value="waitlist">Waitlist</option>    
+    
+</select>    
+    
+<br><br>    
+    
+<div id="specialBox" class="hidden">    
+    
+Special Price<br>    
+    
+<input id="specialPrice" type="number" value="${data.price || ""}"><br>    
+    
+<label><input type="radio" name="mode" value="slot"> Per Slot</label>    
+    
+<label><input type="radio" name="mode" value="month"> Per Month</label>    
+    
+<br><br>    
+    
+</div>    
+    
+<div id="playersBox" class="hidden">    
+    
+Players Needed<br>    
+    
+<input id="players">    
+    
+</div>    
+    
+<div class="popupBtns">    
+    
+<button class="btn-blue" onclick="save()" id="saveBtn">Save</button>  
+    
+<button onclick="closePopup()">Cancel</button>    
+    
+</div>    
+`;    
+document.getElementById("type").value=data.type || "regular";    
+toggleBoxes();    
+    
+document.getElementById("popup").style.display="block";    
+    
+}    
+    
+function toggleBoxes(){    
+    
+let type=document.getElementById("type").value;    
+    
+document.getElementById("playersBox")    
+.classList.toggle("hidden",type!=="waitlist");    
+    
+document.getElementById("specialBox")    
+.classList.toggle("hidden",type!=="special");    
+    
+}    
+    
+async function save(){
+
+let name = document.getElementById("name").value.trim();
+if(!name) return alert("Enter player name");
+
+// UI feedback
+document.getElementById("saveBtn").innerText = "Saving...";
+document.getElementById("saveBtn").disabled = true;
+
+// close popup immediately
+closePopup();
+
+let phone = document.getElementById("phone").value.trim();
+let type = document.getElementById("type").value;
+
+let status = "booked";
+let playersNeeded = null;
+
+// WAITLIST handling
+if(type === "waitlist"){
+playersNeeded = document.getElementById("players").value;
+if(!playersNeeded) return alert("Enter players needed");
+status = "waitlist";
+}
+
+// targets (multi or single)
+let targets = selectedCells.size > 0 ? [...selectedCells] : [null];
+
+let promises = [];
+
+for(let cell of targets){
+
+let court, time;
+
+// get court & time
+if(cell){
+let parts = cell.split("_");
+court = parts[0];
+time = parts[1];
+}else{
+court = activeCourt;
+time = activeTime;
+}
+
+// 🔥 PRICE CALCULATION (FIXED)
+let price = null;
+let membershipEndDate = null;
+
+if(type === "regular"){
+price = getSlotPrice(time);
+}
+
+else if(type === "membership"){
+
+let start = new Date(selectedDate);
+let end = new Date(start);
+end.setDate(start.getDate() + 30);
+
+membershipEndDate = end.toISOString().split("T")[0];
+
+// ✅ ONLY STORE PRICE ON START DATE
+price = MEMBERSHIP_PRICE;
+}
+
+else if(type === "special"){
+
+let sp = document.getElementById("specialPrice").value;
+let mode = document.querySelector('input[name="mode"]:checked')?.value;
+
+if(!sp) return alert("Enter special price");
+
+// SLOT → behaves like normal
+if(mode === "slot"){
+price = Number(sp);
+membershipEndDate = null;
+}
+
+// MONTH → behaves like membership
+if(mode === "month"){
+
+price = Number(sp); // ✅ only one entry
+
+let start = new Date(selectedDate);
+let end = new Date(start);
+end.setDate(start.getDate() + 30);
+
+membershipEndDate = end.toISOString().split("T")[0];
+
+}
+}
+
+
+else if(type === "waitlist"){
+price = null;
+}
+
+// check existing booking
+let existing = bookings[court + "_" + time];
+
+// UPDATE
+if(existing){
+
+promises.push(
+client.from("bookings").update({
+player_name: name,
+phone: phone,
+status: status,
+type: type,
+price: price,
+players_needed: playersNeeded,
+membership_end_date: membershipEndDate
+}).eq("id", existing.id)
+);
+}
+
+// INSERT
+else{
+
+promises.push(
+client.from("bookings").insert({
+turf_id: TURF_ID,
+court_id: court,
+booking_date: selectedDate,
+start_time: time,
+status: status,
+type: type,
+price: price,
+player_name: name,
+phone: phone,
+players_needed: playersNeeded,
+membership_end_date: membershipEndDate
+})
+);
+}
+}
+
+// execute all
+await Promise.all(promises);
+
+// reset UI
+clearSelection();
+multiMode = false;
+updateSelectionUI();
+document.getElementById("clearBtn").classList.add("hidden");
+
+// reload
+await init();
+}
+    
+    
+function showBookedOptions(b){    
+    
+document.getElementById("popupBox").innerHTML=`    
+    
+<h3>Booked Slot</h3>    
+    
+<b>Name:</b> ${b.player_name || "-"}<br>    
+<b>Phone:</b> ${b.phone || "-"}<br>    
+<b>Type:</b> ${b.type || "regular"}<br><br>    
+    
+<div class="popupBtns">    
+    
+<button class="btn-blue" onclick="editBooking('${b.id}')">    
+Edit Details    
+</button>    
+    
+<button class="btn-yellow" onclick="convertToWaitlist()">    
+Convert to Waitlist    
+</button>    
+    
+<button class="btn-red" onclick="cancelBooking('${b.id}')">    
+Cancel    
+</button>    
+    
+<button onclick="closePopup()">Close</button>    
+    
+</div>    
+`;    
+    
+document.getElementById("popup").style.display="block";    
+    
+}    
+    
+function showWaitlistOptions(b){    
+    
+document.getElementById("popupBox").innerHTML=`    
+    
+<h3>Waitlist Slot</h3>    
+    
+<b>Name:</b> ${b.player_name || "-"}<br>    
+<b>Phone:</b> ${b.phone || "-"}<br>    
+<b>Players Needed:</b> ${b.players_needed}<br><br>    
+    
+<div class="popupBtns">    
+    
+<button class="btn-yellow" onclick="convertToBooked('${b.id}')">    
+Convert to Booked    
+</button>    
+    
+<button onclick="editWaitlist('${b.id}','${b.players_needed}')">    
+Edit Players    
+</button>    
+    
+<button class="btn-red" onclick="cancelBooking('${b.id}')">    
+Cancel    
+</button>    
+    
+<button onclick="closePopup()">Close</button>    
+    
+</div>    
+`;    
+    
+document.getElementById("popup").style.display="block";    
+    
+}    
+    
+async function cancelBooking(id){    
+    
+await client    
+.from("bookings")    
+.delete()    
+.eq("id",id);    
+    
+closePopup();    
+    
+init();    
+    
+}    
+    
+async function convertToBooked(id){    
+    
+const { error } = await client    
+.from("bookings")    
+.update({    
+status:"booked",    
+type:"regular",    
+price: getSlotPrice(activeTime),
+players_needed:null,
+membership_end_date:null   
+})    
+.eq("id",id);    
+    
+if(error){    
+alert(error.message);    
+return;    
+}    
+    
+closePopup();    
+init();    
+}    
+    
+async function convertToWaitlist(){    
+    
+let p=prompt("Players needed:");    
+if(!p) return;    
+    
+let existing = bookings[activeCourt+"_"+activeTime];    
+if(!existing) return;    
+    
+const { error } = await client    
+.from("bookings")    
+.update({    
+status:"waitlist",    
+type:"waitlist",    
+price:null,    
+players_needed:p    
+})    
+.eq("id",existing.id);    
+    
+if(error){    
+alert(error.message);    
+return;    
+}    
+    
+closePopup();    
+init();    
+}    
+    
+async function editBooking(id){
+
+const {data, error}=await client
+
+.from("bookings")
+.select("*")
+.eq("id",id)
+.single();
+
+if(error){
+console.log("BOOKING ERROR:", error);
+alert("Booking load failed");
+return;
+} 
+
+activeCourt=data.court_id;
+activeTime=data.start_time;
+
+showBookingForm(data);
+}
+      
+async function editWaitlist(id,players){    
+    
+let p=prompt("Players needed:",players);    
+    
+if(!p) return;    
+    
+await client    
+.from("bookings")    
+.update({    
+players_needed:p,    
+type:"waitlist",    
+status:"waitlist"    
+})    
+.eq("id",id);    
+    
+closePopup();    
+init();    
+}    
+    
+async function init(){  
+  
+document.getElementById("datePicker").value = selectedDate;  
+  
+await loadCourts();  
+await loadBookings();  
+renderGrid();  
+}  
+
+function getSlotHour(time){
+
+let [start, end] = time.split("-");
+
+// get hour numbers
+let startHour = parseInt(start);
+let endHour = parseInt(end);
+
+// detect AM/PM correctly
+let startIsPM = start.includes("PM");
+let endIsPM = end.includes("PM");
+
+// convert start hour properly
+if(startIsPM && startHour !== 12){
+startHour += 12;
+}
+if(!startIsPM && startHour === 12){
+startHour = 0;
+}
+return startHour;
+}
+
+function getSlotPrice(time){
+let hour = getSlotHour(time);
+// Happy hours → 9AM to 5PM
+if(hour >= 9 && hour < 17){
+return 300;
+}
+return 400;
+}
+
+function changeDate(date){  
+selectedDate = date;   
+// clear selection when date changes  
+clearSelection();  
+// reload bookings for new date  
+init();  
+}  
+    
+init();
+
+function toggleMenu(){
+document.getElementById("menu").classList.toggle("hidden");
+}
+    
+</script>
+</body>
+</html>
