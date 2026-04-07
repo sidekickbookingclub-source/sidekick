@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SideKick – Find Turfs</title>
+<link rel="icon" type="image/jpeg" href="faviconsidekick.jpeg">
+
+<style>
+body{
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:#eef2f7;
+    margin:0;
+}
+
+/* ===== HEADER ===== */
+.header{
+    background:linear-gradient(135deg,#0d47a1,#1976d2);
+    color:white;
+    padding:25px 15px 20px;
+    text-align:center;
+    border-bottom-left-radius:20px;
+    border-bottom-right-radius:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+.logo{
+    width:180px;
+    max-width:90%;
+    border-radius:16px;
+    margin-bottom:8px;
+}
+
+.header p{
+    margin-top:6px;
+    font-size:14px;
+    opacity:0.9;
+}
+
+.header h1{
+    margin:0;
+    font-size:42px;
+}
+
+/* ===== TURF GRID ===== */
+.grid{
+    max-width:1000px;
+    margin:20px auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;
+    padding:10px;
+}
+
+.turf-card{
+    background:white;
+    padding:18px;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.06);
+    transition:0.25s;
+    border:1px solid #f1f1f1;
+    border-left:4px solid #0d47a1;
+}
+
+.turf-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 12px 30px rgba(0,0,0,0.12);
+}
+
+.turf-card h3{
+    margin:5px 0;
+    color:#0d47a1;
+}
+
+.turf-card p{
+    font-size:13px;
+    color:#666;
+}
+
+.location-group{
+    grid-column:1 / -1;
+}
+
+.location-title{
+    margin:10px 5px;
+    color:#0d47a1;
+    font-size:18px;
+    font-weight:600;
+}
+
+.btn{
+    display:block;
+    padding:12px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+    text-align:center;
+    transition:0.2s;
+}
+
+.btn:hover{
+    transform:scale(1.02);
+}
+
+.btn:active{
+    transform:scale(0.96);
+}
+
+/* ===== FOOTER ===== */
+.footer{
+    text-align:center;
+    margin-top:30px;
+    padding:20px;
+    color:#666;
+    font-size:14px;
+}
+
+@media(max-width:600px){
+
+.header{
+    padding:20px 10px;
+}
+
+.logo{
+    width:150px;
+}
+
+
+.grid{
+    padding:10px;
+}
+
+
+.turf-actions{
+    flex-direction:column;
+}
+
+}
+
+
+
+
+/* Turf info (courts, sports) */
+.turf-info{
+    margin-top:8px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+}
+
+.turf-info span{
+    background:#eef2f7;
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    color:#333;
+}
+
+/* Actions container */
+.turf-actions{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+}
+
+.turf-actions a{
+    flex:1;
+    height:48px; /* 🔥 force equal height */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    font-size:14px;
+}
+
+/* Map button */
+.map-btn{
+    background:#f3f4f6;
+    color:#444;
+    border:1px solid #e5e7eb;
+    text-decoration:none;
+    font-weight:600; /* 🔥 MATCH btn */
+}
+
+.map-btn:hover{
+    background:#d1d5db;
+}
+
+.btn, .map-btn{
+    box-sizing:border-box; /* 🔥 IMPORTANT */
+}
+
+.menu-btn{
+font-size:22px;
+cursor:pointer;
+position:absolute;
+right:20px;
+}
+
+.menu{
+position:absolute;
+top:70px;
+right:20px;
+background:white;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.menu a{
+text-decoration:none;
+color:#0d47a1;
+font-weight:600;
+padding:8px 12px;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+        <div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+    <img src="logosidekick.jpeg" class="logo">
+    <p>Find teammates. Book turfs. Play more.</p>
+</div>
+
+<div id="menu" class="menu hidden">
+    <a href="sidekick.html">Home</a>
+    <a href="index.html">Find Turfs</a>
+</div>
+
+
+<div class="grid">
+
+    <!-- LOCATION GROUP -->
+    <div class="location-group">
+
+        <h2 class="location-title">📍 Koratty</h2>
+
+        <div class="turf-card">
+
+            <h3>⭕ Gologol Sports Hub</h3>
+
+            <div class="turf-info">
+                <span>🏸 3 Badminton Courts</span>
+                <span>🏓 1 Pickleball Court</span>
+            </div>
+
+            <div class="turf-actions">
+                <a href="gologoluser.html" class="btn">Check Slots</a>
+
+                <a href="https://maps.app.goo.gl/JV4PCeHZd7VcB4Cu7" 
+                   target="_blank" 
+                   class="map-btn">
+                   📍 Map
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <!-- Future turfs -->
+    <!--
+    <div class="turf-card">
+        <h3>ABC Turf</h3>
+        <p>📍 Kochi</p>
+        <a href="#" class="btn">Coming Soon</a>
+    </div>
+    -->
+
+<div class="footer">
+    © 2026 SideKick • Built with ❤️ for local sports communities
+</div>
+
+<script>
+function toggleMenu(){
+document.getElementById("menu").classList.toggle("hidden");
+}
+</script>
+</body>
+</html>
