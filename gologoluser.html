@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SideKick – Book Turf</title>
+<link rel="icon" type="image/png" href="faviconsidekick.jpeg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+font-family:'Segoe UI',Arial;
+background:white;
+margin:0;
+}
+
+/* 🔥 MOBILE OPTIMIZED CARD */
+.container{
+width:100%;
+max-width:500px;
+margin:0 auto;
+background:white;
+padding:14px;
+border-radius:0;
+box-shadow:none;
+}
+
+/* 🔥 BRANDING */
+h1{
+text-align:center;
+color:#0d47a1;
+margin:0;
+font-size:22px;
+}
+
+.venue{
+text-align:center;
+font-size:13px;
+color:#555;
+margin-bottom:12px;
+}
+
+/* HEADER */
+th{
+background:#0d47a1;
+color:white;
+padding:8px;
+border-radius:8px;
+font-size:11px;
+}
+
+/* CELLS */
+td{
+padding:12px 4px;
+border-radius:10px;
+text-align:center;
+font-size:10px;
+font-weight:500;
+}
+
+/* STATUS */
+.available{background:#22c55e;color:white}
+.booked{background:#ef4444;color:white}
+.selected{background:#3b82f6 !important;color:white}
+
+/* TABLE */
+table{
+width:100%;
+border-spacing:4px;
+}
+/* DATE */
+.dateBox{
+text-align:center;
+margin:10px 0 14px;
+}
+
+.dateBox input{
+padding:8px 12px;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+/* POPUP */
+#popup{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.45);
+z-index:1000;
+}
+
+#popup.active{
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.popupBox{
+background:white;
+width:90%;
+max-width:380px;
+padding:20px;
+border-radius:16px;
+}
+
+.popupBox input{
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.popupBtns{
+margin-top:10px;
+}
+
+.pricingInfo{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:6px;
+margin-bottom:10px;
+}
+
+.tag{
+font-size:10px;
+padding:5px 8px;
+border-radius:6px;
+font-weight:500;
+}
+
+.happyTag{
+background:#fef3c7;
+color:#92400e;
+}
+
+.peakTag{
+background:#dbeafe;
+color:#1e3a8a;
+}
+
+.btn-blue{
+background:#0d47a1;
+color:white;
+width:100%;
+padding:14px;
+border-radius:10px;
+font-size:14px;
+}
+
+.btn-cancel{
+background:#e5e7eb;
+margin-top:8px;
+width:100%;
+padding:10px;
+border:none;
+border-radius:8px;
+}
+
+/* 🔥 BOTTOM BAR */
+#bottomBar{
+display:none;
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+width:100%;
+background:white;
+padding:10px;
+box-shadow:0 -4px 12px rgba(0,0,0,0.1);
+z-index:1000;
+}
+
+.summary{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:8px;
+}
+
+.rules{
+font-size:11px;
+color:#555;
+}
+
+.container{
+padding-bottom:120px;
+}
+
+.happy{
+border:2px solid #f59e0b;
+}
+.peak{
+border:2px solid #3b82f6;
+}
+
+.legend{
+display:flex;
+justify-content:center;
+gap:14px;
+font-size:11px;
+margin-bottom:10px;
+align-items:center;
+}
+
+.dot{
+width:10px;
+height:10px;
+border-radius:50%;
+display:inline-block;
+margin-right:4px;
+}
+
+.availableDot{
+background:#22c55e;
+}
+
+.bookedDot{
+background:#ef4444;
+}
+
+.logoBox{
+width:100%;
+display:flex;
+justify-content:center;
+margin:10px 0 5px 0;
+}
+
+.logoBox img{
+width:180px;   /* 🔥 increased size */
+max-width:90%; /* prevents overflow on small phones */
+height:auto;
+border-radius:20px;
+box-shadow:0 8px 18px rgba(0,0,0,0.15);
+background:linear-gradient(135deg,#ff00aa,#00e0ff);
+padding:4px;
+}
+
+.menu-btn{
+font-size:22px;
+cursor:pointer;
+position:absolute;
+right:20px;
+}
+
+.menu{
+position:absolute;
+top:70px;
+right:20px;
+background:white;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.menu a{
+text-decoration:none;
+color:#0d47a1;
+font-weight:600;
+padding:8px 12px;
+}
+
+.hidden{
+display:none;
+}
+
+.admin-access{
+position:fixed;
+bottom:80px;
+right:15px;
+width:50px;
+height:50px;
+background:#0d47a1;
+color:white;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+box-shadow:0 6px 15px rgba(0,0,0,0.2);
+cursor:pointer;
+z-index:3000;
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+<div style="position:relative;">
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+</div>
+<div id="menu" class="menu hidden">
+    <a href="sidekick.html">Home</a>
+    <a href="index.html">Find Turfs</a>
+</div>
+<div class="logoBox">
+    <img src="logosidekick.jpeg" alt="SideKick Logo">
+</div>
+
+<div class="venue">
+Gologol Sports Hub – Koratty
+</div>
+
+<div style="text-align:center; font-size:12px; margin-top:6px;">
+<b>Select Date</b>
+</div>
+
+<div class="dateBox">
+<input type="date" id="datePicker" onchange="changeDate(this.value)">
+</div>
+
+<!-- 🔥 STATUS LEGEND -->
+<div class="legend">
+
+<span class="dot availableDot"></span> Available
+
+<span class="dot bookedDot"></span> Booked
+
+</div>
+
+<div class="pricingInfo">
+<span class="tag happyTag">☀ Happy Hours ₹300 (9AM–5PM)</span>
+<span class="tag peakTag">🌙 Peak Hours ₹400</span>
+</div>
+
+
+<table id="slotTable"></table>
+
+</div>
+
+<!-- 🔥 BOTTOM BAR -->
+<div id="bottomBar">
+
+<div class="rules">
+• Arrive 10 mins early<br>
+• Non-marking shoes / barefoot only<br>
+• Pay at venue
+</div>
+
+<div class="summary">
+
+<div>
+<b id="slotCount"></b><br>
+<span id="totalPrice"></span>
+</div>
+
+<div style="display:flex; gap:8px; width:60%;">
+
+<button onclick="clearSelection()" style="
+background:#ef4444;
+color:white;
+border:none;
+border-radius:8px;
+padding:10px;
+width:35%;
+">
+✕
+</button>
+
+<button class="btn-blue" onclick="openUserDetails()" style="width:65%;">
+Next
+</button>
+
+</div>
+
+</div>
+
+</div> <!-- 🔥 CLOSE bottomBar properly -->
+
+<!-- POPUP -->
+<div id="popup">
+    <div class="popupBox" id="popupBox"></div>
+</div>
+<div class="admin-access" onclick="openAdminLogin()">
+⚙️
+</div>
+
+<script>
+
+const { createClient } = supabase;
+
+const client = createClient(
+"https://ahhjwczdrkgvlhrynfle.supabase.co",
+"sb_publishable_RNa17g2lzkaH4_gQYKpldw_UqTvygJI"
+);
+
+const TURF_ID="ddd59a01-76b9-4372-b0fa-824c42ddc15c";
+const PRICE = 400;
+const VENUE = "Gologol Sports Hub";
+const WHATSAPP_NUMBER = "919061030448";
+
+const times=[
+"5-6 AM","6-7 AM","7-8 AM","8-9 AM","9-10 AM",
+"10-11 AM","11-12 PM","12-1 PM","1-2 PM",
+"2-3 PM","3-4 PM","4-5 PM","5-6 PM",
+"6-7 PM","7-8 PM","8-9 PM","9-10 PM","10-11 PM"
+];
+
+let courts=[];
+let bookings={};
+let selectedDate = new Date().toISOString().split("T")[0];
+let selectedSlots = new Set();
+
+async function loadData(){
+
+document.getElementById("datePicker").value = selectedDate;
+
+let {data:c}=await client.from("courts").select("*").eq("turf_id",TURF_ID);
+courts=c || [];
+
+let {data:b}=await client.from("bookings")
+.select("*")
+.eq("booking_date",selectedDate)
+.eq("turf_id",TURF_ID);
+
+bookings={};
+(b||[]).forEach(x=>{
+bookings[x.court_id+"_"+x.start_time]=x;
+});
+
+renderGrid();
+updateBottomBar();
+}
+
+function renderGrid(){
+
+let table=document.getElementById("slotTable");
+
+let head="<tr><th>Time</th>";
+courts.forEach(c=> head+=`<th>${c.name}</th>`);
+head+="</tr>";
+
+table.innerHTML=head;
+
+times.forEach(t=>{
+let row=`<tr><td><b>${t}</b></td>`;
+
+courts.forEach(c=>{
+
+let key = c.id+"_"+t;
+let b=bookings[key];
+
+let cls="available";
+
+if(getSlotPrice(t) === 300){
+cls += " happy";
+}else{
+cls += " peak";
+}
+
+let label="Available";
+
+if(b && b.status==="booked"){
+cls="booked";
+label="Booked";
+}
+
+if(selectedSlots.has(key)){
+cls="selected";
+}
+
+row+=`<td class="${cls}" onclick="toggleSlot('${c.id}','${t}')">${label}</td>`;
+
+});
+
+row+="</tr>";
+table.innerHTML+=row;
+});
+
+
+}
+
+function toggleSlot(court,time){
+
+let key = court+"_"+time;
+let b=bookings[key];
+
+if(b && b.status==="booked") return;
+
+if(selectedSlots.has(key)){
+selectedSlots.delete(key);
+}else{
+selectedSlots.add(key);
+}
+
+renderGrid();
+updateBottomBar();
+}
+
+function updateBottomBar(){
+
+let bar = document.getElementById("bottomBar");
+
+if(selectedSlots.size === 0){
+bar.style.display="none";
+return;
+}
+
+bar.style.display="block";
+
+let total = 0;
+
+selectedSlots.forEach(key=>{
+let time = key.split("_")[1];
+total += getSlotPrice(time);
+});
+
+document.getElementById("totalPrice").innerText = "₹"+total;
+document.getElementById("slotCount").innerText = selectedSlots.size + " slots";
+
+}
+
+function openUserDetails(){
+
+document.getElementById("popupBox").innerHTML = `
+
+<h3 style="color:#0d47a1;">Enter Details</h3>
+
+<input id="userName" placeholder="Your Name">
+<input id="userPhone" placeholder="Phone Number">
+
+<p style="font-size:12px;color:#555;">
+You will be redirected to WhatsApp to confirm booking
+</p>
+
+<button class="btn-blue" onclick="sendWhatsApp()">Confirm</button>
+<button class="btn-cancel" onclick="closePopup()">Cancel</button>
+
+`;
+
+document.getElementById("popup").classList.add("active");
+}
+
+function sendWhatsApp(){
+
+let name=document.getElementById("userName").value.trim();
+let phone=document.getElementById("userPhone").value.trim();
+
+if(!name || !phone){
+alert("Enter name & phone");
+return;
+}
+
+let msg = `SideKick Booking Request
+
+Name: ${name}
+Phone: ${phone}
+Venue: ${VENUE}
+Date: ${selectedDate}
+
+Slots:
+`;
+
+selectedSlots.forEach(key=>{
+let parts=key.split("_");
+let court=courts.find(c=>c.id===parts[0])?.name || "";
+msg += `${parts[1]} - ${court}\n`;
+});
+
+let total = 0;
+
+selectedSlots.forEach(key=>{
+let time = key.split("_")[1];
+total += getSlotPrice(time);
+});
+
+msg += `\nTotal: ₹${total}`;
+
+window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+
+closePopup();
+}
+
+function closePopup(){
+document.getElementById("popup").classList.remove("active");
+}
+
+function getSlotPrice(time){
+
+let start = time.split("-")[0];
+let hour = parseInt(start);
+
+// SPECIAL CASE: 11-12 PM (should be 11, not 23)
+if(time === "11-12 PM"){
+    hour = 11;
+}
+
+// NORMAL PM conversion
+else if(time.includes("PM") && !time.startsWith("12")){
+    hour += 12;
+}
+
+// 12 AM fix
+if(time.includes("AM") && hour === 12){
+    hour = 0;
+}
+
+// HAPPY HOURS: 9 → 17
+if(hour >= 9 && hour < 17){
+    return 300;
+}
+
+return 400;
+}
+
+function clearSelection(){
+selectedSlots.clear();
+renderGrid();
+updateBottomBar();
+}
+
+function changeDate(date){
+selectedDate = date;
+selectedSlots.clear();
+loadData();
+}
+
+loadData();
+
+function toggleMenu(){
+document.getElementById("menu").classList.toggle("hidden");
+}
+function openAdminLogin(){
+let pass = prompt("Enter Admin Password");
+
+if(pass === "1234"){
+window.location.href = "gologoladmin.html";
+}else{
+alert("Wrong password");
+}
+}
+</script>
+</body>
+</html>
