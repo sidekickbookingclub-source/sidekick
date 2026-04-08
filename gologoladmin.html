@@ -2,7 +2,7 @@
 <head>    
 <meta charset="UTF-8">    
 <title>SideKick – Admin Booking</title>   
-<link rel="icon" type="image/png" href="Images/Logos/faviconsidekick.jpeg">
+<link rel="icon" type="image/png" href="faviconsidekick.jpeg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>    <style>    
 body{    
 font-family:'Segoe UI',Arial,sans-serif;    
@@ -255,11 +255,11 @@ display:none;
 <div class="menu-btn" onclick="toggleMenu()">☰</div> 
 <div class="header">    
 <div class="logoBox">
-    <img src="Images/Logos/logosidekick.jpeg" alt="Sidekick Logo">
+    <img src="logosidekick.jpeg" alt="Sidekick Logo">
 </div>   
 <div id="menu" class="menu hidden">
-    <a href="index.html">Home</a>
-    <a href="turfs.html">Find Turfs</a>
+    <a href="sidekick.html">Home</a>
+    <a href="index.html">Find Turfs</a>
     <a href="gologoluser.html">Back to User Page</a>
 </div>
 <h2>Admin Booking – Gologol Sports Hub</h2>    
@@ -881,10 +881,16 @@ function showBookedOptions(b){
 document.getElementById("popupBox").innerHTML=`    
     
 <h3>Booked Slot</h3>    
-    
+
 <b>Name:</b> ${b.player_name || "-"}<br>    
 <b>Phone:</b> ${b.phone || "-"}<br>    
-<b>Type:</b> ${b.type || "regular"}<br><br>    
+<b>Type:</b> ${b.type || "regular"}<br>
+
+${(b.type === "membership" || (b.type === "special" && b.membership_end_date)) ? `
+<b>Start Date:</b> ${b.booking_date}<br>
+` : ""}
+
+<br>   
     
 <div class="popupBtns">    
     
