@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /gologoladmin.html
+
+Sitemap: https://sidekickbooking.in/sitemap.xml
