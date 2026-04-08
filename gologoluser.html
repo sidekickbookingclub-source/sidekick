@@ -415,16 +415,34 @@ courts=c || [];
 
 let {data:b}=await client.from("bookings")
 .select("*")
-.eq("booking_date",selectedDate)
-.eq("turf_id",TURF_ID);
+.eq("turf_id",TURF_ID)
+.or(`booking_date.eq.${selectedDate},and(booking_date.lte.${selectedDate},membership_end_date.gte.${selectedDate})`);
+
+console.log("Selected Date:", selectedDate);
+console.log("Bookings from DB:", b);
 
 bookings={};
 (b||[]).forEach(x=>{
-bookings[x.court_id+"_"+x.start_time]=x;
+bookings[x.court_id + "_" + x.start_time] = x;
 });
 
 renderGrid();
 updateBottomBar();
+}
+
+function normalizeTime(time){
+    let start = time.split("-")[0];
+    let hour = parseInt(start);
+
+    if(time.includes("PM") && hour !== 12){
+        hour += 12;
+    }
+
+    if(time.includes("AM") && hour === 12){
+        hour = 0;
+    }
+
+    return String(hour).padStart(2,'0') + ":00";
 }
 
 function renderGrid(){
@@ -442,7 +460,7 @@ let row=`<tr><td><b>${t}</b></td>`;
 
 courts.forEach(c=>{
 
-let key = c.id+"_"+t;
+let key = c.id + "_" + t;
 let b=bookings[key];
 
 let cls="available";
@@ -455,7 +473,7 @@ cls += " peak";
 
 let label="Available";
 
-if(b && b.status==="booked"){
+if(b){
 cls="booked";
 label="Booked";
 }
@@ -477,10 +495,10 @@ table.innerHTML+=row;
 
 function toggleSlot(court,time){
 
-let key = court+"_"+time;
+let key = court + "_" + time;
 let b=bookings[key];
 
-if(b && b.status==="booked") return;
+if(b) return;
 
 if(selectedSlots.has(key)){
 selectedSlots.delete(key);
