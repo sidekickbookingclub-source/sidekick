@@ -554,7 +554,7 @@ You will be redirected to WhatsApp to confirm booking
 document.getElementById("popup").classList.add("active");
 }
 
-function sendWhatsApp(){
+async function sendWhatsApp(){
 
 let name=document.getElementById("userName").value.trim();
 let phone=document.getElementById("userPhone").value.trim();
@@ -564,7 +564,45 @@ alert("Enter name & phone");
 return;
 }
 
-let msg = `SideKick Booking Request
+// 🔥 SAVE BOOKINGS FIRST
+let inserts = [];
+
+selectedSlots.forEach(key=>{
+
+let parts = key.split("_");
+let courtId = parts[0];
+let time = parts[1];
+
+// prevent duplicate booking
+if(bookings[key]) return;
+
+inserts.push({
+turf_id: TURF_ID,
+court_id: courtId,
+booking_date: selectedDate,
+start_time: time,
+status: "booked",
+type: "regular",
+price: getSlotPrice(time),
+player_name: name,
+phone: phone
+});
+
+});
+
+if(inserts.length > 0){
+
+let {error} = await client.from("bookings").insert(inserts);
+
+if(error){
+alert("Booking failed: " + error.message);
+return;
+}
+
+}
+
+// 🔥 WHATSAPP MESSAGE
+let msg = `SideKick Booking Confirmed
 
 Name: ${name}
 Phone: ${phone}
@@ -588,6 +626,10 @@ total += getSlotPrice(time);
 });
 
 msg += `\nTotal: ₹${total}`;
+
+// refresh UI
+selectedSlots.clear();
+loadData();
 
 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
 
